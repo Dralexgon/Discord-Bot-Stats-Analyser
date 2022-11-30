@@ -35,3 +35,9 @@ def execute_read_query(connection, query):
         return result
     except Error as e:
         Log.print(f"The error '{e}' occurred")
+
+def injection_protection(string):
+    return string.replace("'", "\\'")
+
+def remove_injection_protection(string):
+    return string.replace("\\'", "'")

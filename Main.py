@@ -10,10 +10,9 @@ import time
 from Bot import Bot
 from Log import Log
 
-Client = discord.Client()
-Intents = discord.Intents.default()
-Intents.members = True
-client = commands.Bot(command_prefix = "!", help_command=None, Intents=Intents)
+#intents = discord.Intents.default()
+#intents.members = True
+client = commands.Bot(command_prefix = "!", help_command=None, intents=discord.Intents.all())
 client.remove_command('help')
 
 @client.event
@@ -41,22 +40,11 @@ async def ping(ctx: commands.Context):
 @client.command(pass_context = True, name="test", help="To test stuff. (Only for Dralexgon)")
 async def test(ctx: commands.Context):
     if ctx.author.id != 645005137714348041:
-        await ctx.send("You are not allowed to use this command.")
+        await ctx.send("Only for Dralexgon !")
         return
     for guild in client.guilds:
-        print(f"nb_members : {len(guild.members)}")
         for member in guild.members:
-            if member.status == discord.Status.online:
-                status = "online"
-            elif member.status == discord.Status.idle:
-                status = "idle"
-            elif member.status == discord.Status.dnd:
-                status = "dnd"
-            elif member.status == discord.Status.offline:
-                status = "offline"
-            else:
-                status = "unknown"
-            await ctx.send(f"{member.name}#{member.discriminator} is {status} in {guild.name}")
+            await ctx.send(f"{member.name}#{member.discriminator} is {member.status} in {guild.name}")
 
 @client.command(pass_context = True, name="most_active", aliases=["top10"], help="This command will send the 10 most active users in the server.")
 async def most_active(ctx: commands.Context):
@@ -65,10 +53,8 @@ async def most_active(ctx: commands.Context):
         title = "Top 10 most active users",
         colour = discord.Colour.blue()
     )
-    #embed.set_author(name='Top 10 most active users')
     for i in range(len(result)):
         embed.add_field(name=str(result[i][0]) + "#" + str(result[i][1]), value=str(result[i][2]) + " messages", inline=False)
-        embed.set_thumbnail(url=client.user.avatar_url)
     await ctx.send(ctx.author.mention, embed=embed)
 
 @client.event

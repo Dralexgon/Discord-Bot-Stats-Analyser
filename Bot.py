@@ -27,7 +27,7 @@ class Bot:
         channelname = injection_protection(message.channel.name)
         content = injection_protection(message.content)
 
-        query = f"INSERT INTO messages (username, usertag, servername, channelname, content) VALUES ('{username}', '{usertag}', '{servername}', '{channelname}', '{content}')"
+        query = f"INSERT INTO messages (username, usertag, servername, channelname, content, timesamp) VALUES ('{username}', '{usertag}', '{servername}', '{channelname}', '{content}', '{message.created_at}')"
         execute_query(Bot.connection, query)
     
     @staticmethod
@@ -39,3 +39,27 @@ class Bot:
         for i in range(len(result)):
             result[i] = (remove_injection_protection(result[i][0]), result[i][1], result[i][2])
         return result
+    
+    @staticmethod
+    def get_most_use_letter(servername):
+        servername = injection_protection(servername)
+        query = f"SELECT content FROM messages WHERE servername = '{servername}'"
+        result = execute_read_query(Bot.connection, query)
+        #remove sql injection protection and convert to lowercase
+        for i in range(len(result)):
+            result[i] = remove_injection_protection(result[i][0]).lower()
+        #count letters
+        letters = {}
+        for message in result:
+            for letter in message:
+                if letter == ' ':
+                    continue
+                if letter in letters:
+                    letters[letter] += 1
+                else:
+                    letters[letter] = 1
+        #sort letters and keep it like a dict
+        letters = dict(sorted(letters.items(), key=lambda item: item[1], reverse=True))
+        #only keep the 10 most used letters
+        letters = dict(list(letters.items())[:10])
+        return letters

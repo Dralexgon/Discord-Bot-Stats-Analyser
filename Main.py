@@ -54,7 +54,18 @@ async def most_active(ctx: commands.Context):
         colour = discord.Colour.blue()
     )
     for i in range(len(result)):
-        embed.add_field(name=str(result[i][0]) + "#" + str(result[i][1]), value=str(result[i][2]) + " messages", inline=False)
+        embed.add_field(name=f"{result[i][0]}#{result[i][1]:0>4d}", value=f"{result[i][2]}  messages", inline=False)
+    await ctx.send(ctx.author.mention, embed=embed)
+
+@client.command(pass_context = True, name="most_use_letter", aliases=["top10letter"], help="This command will send the 10 most used letters in the server.")
+async def most_use_letter(ctx: commands.Context):
+    result = Bot.get_most_use_letter(ctx.guild.name)
+    embed = discord.Embed(
+        title = "Top 10 most used letters",
+        colour = discord.Colour.blue()
+    )
+    for letter, value in result.items():
+        embed.add_field(name=letter, value=f"{value}  times", inline=False)
     await ctx.send(ctx.author.mention, embed=embed)
 
 @client.event
@@ -71,17 +82,7 @@ async def on_message(message : discord.Message):
 async def store_users_status():
     for guild in client.guilds:
         for member in guild.members:
-            if member.status == discord.Status.online:
-                status = "online"
-            elif member.status == discord.Status.idle:
-                status = "idle"
-            elif member.status == discord.Status.dnd:
-                status = "dnd"
-            elif member.status == discord.Status.offline:
-                status = "offline"
-            else:
-                status = "unknown"
-            Bot.store_user_status(member.name, member.discriminator, guild.name, status)
+            Bot.store_user_status(member.name, member.discriminator, guild.name, member.status)
 
 @tasks.loop(seconds=60)
 async def store_users_activity():
